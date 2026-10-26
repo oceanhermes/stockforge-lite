@@ -1,5 +1,9 @@
 # StockForge Lite
 
+**Live:** https://stockforge.conoisseur.xyz/  
+Self-hosted Streamlit instance. Runs entirely on the host machine — uploaded images are
+never sent to an external service.
+
 **Tool lokal untuk menyiapkan gambar ilustrasi stock**: resize/upscale CPU dengan Pillow Lanczos, menjaga alpha PNG, memeriksa megapiksel/file size, dan menghasilkan metadata CSV untuk Adobe Stock.
 
 > Aplikasi ini **bukan AI upscaler** dan metadata **bukan hasil image recognition**. Metadata awal disediakan lewat 12 preset cybersecurity, untuk direvisi sesuai gambar. Tidak ada API key, cloud model, atau koneksi Adobe.
@@ -43,10 +47,21 @@ Sumber (diakses 2026-10-25):
 ## Untuk developer
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-streamlit run app.py
+.venv/bin/pip install -r requirements.txt
+.venv/bin/streamlit run app.py --server.address 127.0.0.1 --server.port 8501
 ```
+
+### Run as a persistent service (Linux)
+
+```bash
+# systemd user unit, survives reboot, restarts on crash
+systemctl --user enable --now stockforge.service
+systemctl --user status stockforge.service
+```
+
+Public exposure goes through a dedicated cloudflared tunnel (`stockforge-tunnel.service`),
+not a shared config — every hostname owns its own tunnel so one app cannot break another.
 
 Logic utama ada di `core.py`; UI di `app.py`.
